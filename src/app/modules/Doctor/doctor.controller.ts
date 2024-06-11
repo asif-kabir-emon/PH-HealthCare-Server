@@ -21,8 +21,9 @@ const getAllDoctors = catchAsync(async (req, res) => {
 });
 
 const getDoctorById = catchAsync(async (req, res) => {
+    const user = req.user;
     const { id } = req.params;
-    const result = await DoctorServices.getDoctorByIdFromDB(id);
+    const result = await DoctorServices.getDoctorByIdFromDB(user, id);
 
     sendResponse(res, {
         statusCode: httpStatus.OK,

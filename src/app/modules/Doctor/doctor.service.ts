@@ -1,9 +1,11 @@
-import { Doctor, Prisma, UserStatus } from "@prisma/client";
+import { Doctor, Prisma, UserRole, UserStatus } from "@prisma/client";
 import { paginationHelper } from "../../helpers/paginationHelper";
 import { TPaginationOptions } from "../../interfaces/pagination";
 import prisma from "../../helpers/prisma";
 import { TDoctorFilterRequest } from "./doctor.interface";
 import { doctorSearchableFields } from "./doctor.constant";
+import ApiError from "../../errors/ApiError";
+import httpStatus from "http-status";
 
 const getAllDoctorsFromDB = async (
     params: TDoctorFilterRequest,
@@ -87,13 +89,27 @@ const getAllDoctorsFromDB = async (
     };
 };
 
-const getDoctorByIdFromDB = async (id: any): Promise<Doctor | null> => {
+const getDoctorByIdFromDB = async (
+    user: any,
+    id: any
+): Promise<Doctor | null> => {
     const result = await prisma.doctor.findUniqueOrThrow({
         where: {
             id,
             isDeleted: false,
         },
+        include: {
+            doctorSpecialities: {
+                include: {
+                    specialities: true,
+                },
+            },
+        },
     });
+
+    if (user.role === UserRole.DOCTOR && user.email !== result.email) {
+        throw new ApiError(httpStatus.FORBIDDEN, "Forbidden");
+    }
 
     return result;
 };

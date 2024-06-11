@@ -139,7 +139,7 @@ const getAllSchedulesFromDB = async (
             limit,
             total,
         },
-        data: result,
+        schedules: result,
     };
 };
 

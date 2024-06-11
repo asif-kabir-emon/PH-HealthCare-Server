@@ -104,6 +104,9 @@ const getMySchedulesFromDB = async (
         where: whereConditions,
         skip: skip,
         take: limit,
+        include: {
+            schedule: true,
+        },
         orderBy:
             options?.sortsBy && options?.sortOrder
                 ? {

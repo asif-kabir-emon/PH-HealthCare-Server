@@ -26,6 +26,8 @@ const getMySchedules = catchAsync(async (req, res) => {
         "isBooked",
     ]);
     const options = pick(req.query, ["limit", "page", "sortBy", "sortOrder"]);
+    console.log("filters", req.query);
+
     const result = await DoctorScheduleServices.getMySchedulesFromDB(
         req.user as IAuthUser,
         filters,
