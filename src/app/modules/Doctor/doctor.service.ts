@@ -107,9 +107,9 @@ const getDoctorByIdFromDB = async (
         },
     });
 
-    if (user.role === UserRole.DOCTOR && user.email !== result.email) {
-        throw new ApiError(httpStatus.FORBIDDEN, "Forbidden");
-    }
+    // if (user.role === UserRole.DOCTOR && user.email !== result.email) {
+    //     throw new ApiError(httpStatus.FORBIDDEN, "Forbidden");
+    // }
 
     return result;
 };

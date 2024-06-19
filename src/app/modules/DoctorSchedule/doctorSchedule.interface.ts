@@ -4,3 +4,9 @@ export type TSchedule = {
     startTime: string;
     endTime: string;
 };
+
+export type TScheduleFilters = {
+    startDateTime?: string;
+    endDateTime?: string;
+    doctorId?: string;
+};

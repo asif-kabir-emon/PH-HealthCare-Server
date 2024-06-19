@@ -68,7 +68,7 @@ const getAllSchedulesFromDB = async (
     params: TScheduleFilters,
     options: TPaginationOptions
 ) => {
-    const { startDateTime, endDateTime, ...filterData } = params;
+    const { startDateTime, endDateTime, doctorId, ...filterData } = params;
     const { limit, page, skip, sortBy, sortOrder } =
         paginationHelper.calculatePagination(options);
     const andConditions: Prisma.ScheduleWhereInput[] = [];
@@ -81,6 +81,28 @@ const getAllSchedulesFromDB = async (
                 },
             })),
         });
+    }
+
+    if (doctorId) {
+        const doctorSchedules = await prisma.doctorSchedules.findMany({
+            where: {
+                doctorId: doctorId,
+            },
+        });
+
+        if (doctorSchedules.length > 0) {
+            const doctorScheduleIds = doctorSchedules.map(
+                (schedule) => schedule.scheduleId
+            );
+
+            if (doctorScheduleIds.length > 0) {
+                andConditions.push({
+                    id: {
+                        in: doctorScheduleIds,
+                    },
+                });
+            }
+        }
     }
 
     if (startDateTime && endDateTime) {
@@ -100,23 +122,23 @@ const getAllSchedulesFromDB = async (
         });
     }
 
-    const doctorSchedules = await prisma.doctorSchedules.findMany({
-        where: {
-            doctor: {
-                email: user?.email,
-            },
-        },
-    });
+    // const doctorSchedules = await prisma.doctorSchedules.findMany({
+    //     where: {
+    //         doctor: {
+    //             email: user?.email,
+    //         },
+    //     },
+    // });
 
-    const doctorScheduleIds = doctorSchedules.map(
-        (schedule) => schedule.scheduleId
-    );
+    // // const doctorScheduleIds = doctorSchedules.map(
+    // //     (schedule) => schedule.scheduleId
+    // // );
 
-    andConditions.push({
-        id: {
-            notIn: doctorScheduleIds,
-        },
-    });
+    // // andConditions.push({
+    // //     id: {
+    // //         notIn: doctorScheduleIds,
+    // //     },
+    // // });
 
     const whereConditions: Prisma.ScheduleWhereInput = { AND: andConditions };
 

@@ -4,6 +4,9 @@ import { IAuthUser } from "../../interfaces/common";
 import { paginationHelper } from "../../helpers/paginationHelper";
 import ApiError from "../../errors/ApiError";
 import httpStatus from "http-status";
+import { TScheduleFilters } from "./doctorSchedule.interface";
+import { TPaginationOptions } from "../../interfaces/pagination";
+import { schedule } from "node-cron";
 
 const createDoctorScheduleIntoDB = async (
     user: IAuthUser,
@@ -166,8 +169,78 @@ const deleteDoctorScheduleFromDB = async (
     return result;
 };
 
+const getDoctorSchedulesFromDB = async (
+    params: TScheduleFilters,
+    options: TPaginationOptions
+) => {
+    const { startDateTime, endDateTime, ...filterData } = params;
+    const { limit, page, skip, sortBy, sortOrder } =
+        paginationHelper.calculatePagination(options);
+
+    const andConditions: Prisma.DoctorSchedulesWhereInput[] = [];
+
+    if (Object.keys(filterData).length) {
+        andConditions.push({
+            AND: Object.keys(filterData).map((key) => ({
+                [key]: {
+                    equals: (filterData as any)[key],
+                },
+            })),
+        });
+    }
+
+    if (startDateTime && endDateTime) {
+        andConditions.push({
+            AND: [
+                {
+                    schedule: {
+                        startDateTime: {
+                            gte: new Date(startDateTime),
+                        },
+                    },
+                },
+                {
+                    schedule: {
+                        startDateTime: {
+                            lte: new Date(endDateTime),
+                        },
+                    },
+                },
+            ],
+        });
+    }
+
+    const whereConditions: Prisma.DoctorSchedulesWhereInput = {
+        AND: andConditions,
+    };
+
+    const result = await prisma.doctorSchedules.findMany({
+        where: whereConditions,
+        skip: skip,
+        take: limit,
+        include: {
+            doctor: true,
+            schedule: true,
+        },
+    });
+
+    const total = await prisma.doctorSchedules.count({
+        where: whereConditions,
+    });
+
+    return {
+        meta: {
+            page,
+            limit,
+            total,
+        },
+        schedules: result,
+    };
+};
+
 export const DoctorScheduleServices = {
     createDoctorScheduleIntoDB,
     getMySchedulesFromDB,
     deleteDoctorScheduleFromDB,
+    getDoctorSchedulesFromDB,
 };

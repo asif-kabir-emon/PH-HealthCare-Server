@@ -17,7 +17,11 @@ const createSchedule = catchAsync(async (req, res) => {
 });
 
 const getAllSchedules = catchAsync(async (req, res) => {
-    const filters = pick(req.query, ["startDateTime", "endDateTime"]);
+    const filters = pick(req.query, [
+        "startDateTime",
+        "endDateTime",
+        "doctorId",
+    ]);
     const options = pick(req.query, ["limit", "page", "sortBy", "sortOrder"]);
     const result = await ScheduleServices.getAllSchedulesFromDB(
         req.user as IAuthUser,

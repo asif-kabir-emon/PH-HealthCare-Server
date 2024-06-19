@@ -7,13 +7,18 @@ const router = express.Router();
 
 router.get(
     "/",
-    auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+    // auth(
+    //     UserRole.SUPER_ADMIN,
+    //     UserRole.ADMIN,
+    //     UserRole.DOCTOR,
+    //     UserRole.PATIENT
+    // ),
     DoctorControllers.getAllDoctors
 );
 
 router.get(
     "/:id",
-    auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.DOCTOR),
+    // auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.DOCTOR),
     DoctorControllers.getDoctorById
 );
 

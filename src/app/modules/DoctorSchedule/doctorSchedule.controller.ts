@@ -26,7 +26,6 @@ const getMySchedules = catchAsync(async (req, res) => {
         "isBooked",
     ]);
     const options = pick(req.query, ["limit", "page", "sortBy", "sortOrder"]);
-    console.log("filters", req.query);
 
     const result = await DoctorScheduleServices.getMySchedulesFromDB(
         req.user as IAuthUser,
@@ -38,6 +37,27 @@ const getMySchedules = catchAsync(async (req, res) => {
         statusCode: httpStatus.OK,
         success: true,
         message: "My Schedules fetched successfully",
+        data: result,
+    });
+});
+
+const getDoctorSchedules = catchAsync(async (req, res) => {
+    const filters = pick(req.query, [
+        "startDateTime",
+        "endDateTime",
+        "doctorId",
+    ]);
+    const options = pick(req.query, ["limit", "page", "sortBy", "sortOrder"]);
+
+    const result = await DoctorScheduleServices.getDoctorSchedulesFromDB(
+        filters,
+        options
+    );
+
+    sendResponse(res, {
+        statusCode: httpStatus.OK,
+        success: true,
+        message: "Doctor Schedules fetched successfully",
         data: result,
     });
 });
@@ -60,4 +80,5 @@ export const DoctorScheduleControllers = {
     createDoctorSchedule,
     getMySchedules,
     deleteDoctorSchedule,
+    getDoctorSchedules,
 };
